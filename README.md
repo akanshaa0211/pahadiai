@@ -15,3 +15,14 @@ AI-powered tourism and local business platform designed to help homestays and ru
 - Business analytics dashboard
 - Product description generator
 - WhatsApp automation
+- Review analysis
+- Business dashboard
+- AI content generation
+- Tourism business support
+
+## Tech Stack
+- React.js
+- FastAPI
+- PostgreSQL
+- Tailwind CSS
+- Gemini 
