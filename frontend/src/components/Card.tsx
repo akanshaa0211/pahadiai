@@ -1,17 +1,20 @@
 type CardProps = {
   title: string;
+  description: string;
 };
 
-function Card({ title }: CardProps) {
+function Card({ title, description }: CardProps) {
   return (
     <div
       style={{
-        border: "1px solid #ccc",
+        border: "1px solid #ddd",
         padding: "20px",
-        width: "150px",
+        borderRadius: "10px",
+        width: "220px",
       }}
     >
-      {title}
+      <h3>{title}</h3>
+      <p>{description}</p>
     </div>
   );
 }

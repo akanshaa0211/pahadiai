@@ -2,10 +2,11 @@ function Footer() {
   return (
     <footer
       style={{
+        marginTop: "50px",
         padding: "20px",
-        textAlign: "center",
         background: "#111",
         color: "white",
+        textAlign: "center",
       }}
     >
       © 2026 PahadiAI
