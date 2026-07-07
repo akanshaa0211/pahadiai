@@ -71,3 +71,31 @@ export default defineConfig([
   },
 ])
 ```
+## Week 5 — Database Design & Management
+
+### Database Choice
+MongoDB Atlas was selected for the backend database because the project uses flexible task-based data.
+
+### Data Model
+
+#### Task
+- title: String
+- completed: Boolean
+- createdAt: Date
+- updatedAt: Date
+
+### Environment Variables
+
+Create a `.env` file inside the backend folder:
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+## API Endpoints
+
+- GET /api/tasks → Get all tasks
+- GET /api/tasks/:id → Get a task by ID
+- POST /api/tasks → Create a new task
+- PUT /api/tasks/:id → Update a task
+- DELETE /api/tasks/:id → Delete a task
+- GET /api/search?q=backend → Search tasks

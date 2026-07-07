@@ -2,62 +2,58 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+const mongoose = require("mongoose");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// Sample Data
-let tasks = [
-  {
-    id: 1,
-    title: "Build Backend",
-    completed: false,
-  },
-  {
-    id: 2,
-    title: "Connect Frontend",
-    completed: true,
-  },
-];
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected successfully"))
+  .catch((error) => console.error("❌ MongoDB connection error:", error));
 
-// ===================== HOME =====================
+const taskSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+    },
+    completed: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
+
+const Task = mongoose.model("Task", taskSchema);
+
 app.get("/", (req, res) => {
-  res.json({
-    message: "Welcome to PahadiAI Backend API 🚀",
-  });
+  res.json({ message: "Welcome to PahadiAI Backend API 🚀" });
 });
 
-// ===================== GET ALL TASKS =====================
-app.get("/api/tasks", (req, res) => {
+app.get("/api/tasks", async (req, res) => {
+  const tasks = await Task.find();
   res.status(200).json(tasks);
 });
 
-// ===================== GET SINGLE TASK =====================
-app.get("/api/tasks/:id", (req, res) => {
-  const task = tasks.find(
-    (item) => item.id === Number(req.params.id)
-  );
+app.get("/api/tasks/:id", async (req, res) => {
+  const task = await Task.findById(req.params.id);
 
   if (!task) {
-    return res.status(404).json({
-      message: "Task not found",
-    });
+    return res.status(404).json({ message: "Task not found" });
   }
 
   res.status(200).json(task);
 });
 
-// ===================== CREATE TASK =====================
-app.post("/api/tasks", (req, res) => {
-  const newTask = {
-    id: tasks.length + 1,
+app.post("/api/tasks", async (req, res) => {
+  const newTask = await Task.create({
     title: req.body.title,
-    completed: false,
-  };
-
-  tasks.push(newTask);
+    completed: req.body.completed || false,
+  });
 
   res.status(201).json({
     message: "Task created successfully",
@@ -65,50 +61,46 @@ app.post("/api/tasks", (req, res) => {
   });
 });
 
-// ===================== UPDATE TASK =====================
-app.put("/api/tasks/:id", (req, res) => {
-  const task = tasks.find(
-    (item) => item.id === Number(req.params.id)
+app.put("/api/tasks/:id", async (req, res) => {
+  const updatedTask = await Task.findByIdAndUpdate(
+    req.params.id,
+    {
+      title: req.body.title,
+      completed: req.body.completed,
+    },
+    { new: true }
   );
 
-  if (!task) {
-    return res.status(404).json({
-      message: "Task not found",
-    });
+  if (!updatedTask) {
+    return res.status(404).json({ message: "Task not found" });
   }
-
-  task.title = req.body.title;
-  task.completed = req.body.completed;
 
   res.status(200).json({
     message: "Task updated successfully",
-    data: task,
+    data: updatedTask,
   });
 });
 
-// ===================== DELETE TASK =====================
-app.delete("/api/tasks/:id", (req, res) => {
-  tasks = tasks.filter(
-    (item) => item.id !== Number(req.params.id)
-  );
+app.delete("/api/tasks/:id", async (req, res) => {
+  const deletedTask = await Task.findByIdAndDelete(req.params.id);
 
-  res.status(200).json({
-    message: "Task deleted successfully",
-  });
+  if (!deletedTask) {
+    return res.status(404).json({ message: "Task not found" });
+  }
+
+  res.status(200).json({ message: "Task deleted successfully" });
 });
 
-// ===================== SEARCH TASK =====================
-app.get("/api/search", (req, res) => {
+app.get("/api/search", async (req, res) => {
   const query = req.query.q || "";
 
-  const result = tasks.filter((task) =>
-    task.title.toLowerCase().includes(query.toLowerCase())
-  );
+  const tasks = await Task.find({
+    title: { $regex: query, $options: "i" },
+  });
 
-  res.status(200).json(result);
+  res.status(200).json(tasks);
 });
 
-// ===================== SERVER =====================
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
